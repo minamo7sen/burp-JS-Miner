@@ -1,0 +1,16 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'net.portswigger.burp.extender:burp-extender-api:2.2'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.0-rc1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0-rc1'
+}
+
+defaultTasks 'shadowJar'
