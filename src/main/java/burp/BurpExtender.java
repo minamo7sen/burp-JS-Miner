@@ -16,7 +16,7 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, IExtens
     static PrintWriter mStdOut;
     static PrintWriter mStdErr;
     public static final String EXTENSION_NAME = "JS Miner";
-    private static final String EXTENSION_VERSION = "1.0";
+    private static final String EXTENSION_VERSION = "1.1";
 
     // Exposing callbacks for use in other classes
     public static IBurpExtenderCallbacks getCallbacks() {
@@ -143,12 +143,12 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, IExtens
 
     @Override
     public List<IScanIssue> doPassiveScan(IHttpRequestResponse baseRequestResponse) {
+        new Thread(() -> new JSMinerScan(baseRequestResponse, false, true)).start();
         return null;
     }
 
     @Override
     public List<IScanIssue> doActiveScan(IHttpRequestResponse baseRequestResponse, IScannerInsertionPoint insertionPoint) {
-        new Thread(() -> new JSMinerScan(baseRequestResponse, true, false)).start();
         return null;
     }
 

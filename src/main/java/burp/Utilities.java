@@ -6,10 +6,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,6 +14,7 @@ import static burp.BurpExtender.*;
 
 public final class Utilities {
     private static final Pattern FILE_NAME_REGEX = Pattern.compile("(.*)\\.(.*)");
+    private static final long REGEX_TIME_OUT = 60000; // 1 minute (x3)
 
     private Utilities() {
     }
@@ -43,6 +41,16 @@ public final class Utilities {
             }
         }
         return true;
+    }
+
+    public static String getRootDomain(String requestDomain) {
+        // Get root Domain (e.g.: example.com instead of sub.example.com)
+        Pattern rootDomainRegex = Pattern.compile("[a-z0-9]+.[a-z0-9]+$", Pattern.CASE_INSENSITIVE);
+        Matcher matcherRootDomain = rootDomainRegex.matcher(requestDomain);
+            if (matcherRootDomain.find() && BurpExtender.isLoaded()) {
+                return matcherRootDomain.group();
+            }
+            return null;
     }
 
     // Source: https://rosettacode.org/wiki/Entropy#Java
@@ -206,6 +214,37 @@ public final class Utilities {
                     ":" +
                     url.getPort() +
                     url.getPath() + appendedPath;
+        }
+    }
+
+    public static String b64Decode(String encodedString) {
+        byte[] decodedBytes = Base64.getDecoder().decode(encodedString.trim());
+        return new String(decodedBytes);
+    }
+
+    /**
+     * A dirty method to timeout Regexes that takes so long
+     *
+     * Due to the fact we are using big complex Regexes,
+     * sometimes with big files, this can take a long time.
+     * This method mitigates this problem by killing the thread before it "kills" your CPU =)
+     * Thanks to: https://www.ocpsoft.org/regex/how-to-interrupt-a-long-running-infinite-java-regular-expression/
+     */
+    public static void regexRunnerWithTimeOut(Runnable runnable) throws InterruptedException {
+        Thread thread = new Thread(runnable);
+        thread.start();
+        Thread.sleep(1000); // wait a bit then check the thread before forcing thread.interrupt
+
+        // Intentionally making loops to check if thread is alive to help continue the execution cleanly
+        if (thread.isAlive()) {
+            Thread.sleep(REGEX_TIME_OUT);   // wait a minute then check
+            if (thread.isAlive()) {
+                Thread.sleep(REGEX_TIME_OUT);   // wait a second minute then check
+                if (thread.isAlive()) {
+                    Thread.sleep(REGEX_TIME_OUT);   // wait a third minute then give-up and kill force thread.interrupt
+                    thread.interrupt();
+                }
+            }
         }
     }
 }

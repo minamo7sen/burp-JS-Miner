@@ -2,10 +2,14 @@ package burp;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import static burp.InterestingStuffFinder.REGEX_QUOTES;
 
-public class DependencyValidator {
+/**
+ * NPM package to hold dependency name and version.
+ * It also does some basic validations.
+ * Mainly used with the "dependency confusion" scan.
+ */
+public class NPMPackage {
     private String name;
     private String version;
     private String nameWithVersion;
@@ -14,13 +18,9 @@ public class DependencyValidator {
             ":" +
             REGEX_QUOTES + "(.*)" + REGEX_QUOTES);
 
-    // Source: https://github.com/sindresorhus/semver-regex/blob/main/index.js
-    private static final Pattern NPM_SEMANTIC_VERSION_REGEX = Pattern.compile(("(?<=^v?|\\sv?)(?:(?:0|[1-9]\\d*)\\.){2}(?:0|[1-9]\\d*)(?:-(?:0|[1-9]\\d*|[\\da-z-]*[a-z-][\\da-z-]*)(?:\\.(?:0|[1-9]\\d*|[\\da-z-]*[a-z-][\\da-z-]*))*)?(?:\\+[\\da-z-]+(?:\\.[\\da-z-]+)*)?\\b"),
-            Pattern.CASE_INSENSITIVE);
-
     private static final String[] blacklistDepName = {"node_modules", "favicon.ico"};
 
-    DependencyValidator(String dependencyWithNameAndVersion) {
+    NPMPackage(String dependencyWithNameAndVersion) {
         final Matcher nameAndVersionMatcher = DEPENDENCY_AND_VERSION_REGEX.matcher(dependencyWithNameAndVersion);
 
         if (nameAndVersionMatcher.find()
@@ -31,8 +31,8 @@ public class DependencyValidator {
         }
     }
 
-    // Basic validations for npm package name
-    private boolean isNameValid() {
+    // Basic validation for npm package name
+    public boolean isNameValid() {
         if (
                 name.startsWith(".")  // // npm package name should not start with a period
                         || name.startsWith("_")  // // npm package name should not start with an underscore
@@ -54,38 +54,30 @@ public class DependencyValidator {
         return true;
     }
 
-    private boolean isVersionValid() {
-        Matcher matcher = NPM_SEMANTIC_VERSION_REGEX.matcher(version);
-        return matcher.find();
-    }
-
-    public boolean isValid() {
-        return isNameValid() && isVersionValid();
-
+    /**
+     * Basic blacklist for NPM version number (whitelisting is always better, might need to improve this in the future)
+     * Reference https://docs.npmjs.com/cli/v7/configuring-npm/package-json#dependencies
+     */
+    public boolean isVersionValidNPM() {
+        return !version.contains("@")
+                && !version.contains("/")
+                && !version.contains("git")
+                && !version.contains("file")
+                && !version.contains("npm")
+                && !version.contains("link")
+                && !version.contains("bitbucket");
     }
 
     public String getOrgNameFromScopedDependency() {
         return name.replaceAll("^@", "").replaceAll("/.*", "");
     }
 
-
     public String getName() {
         return name;
-    }
-
-    public String getVersion() {
-        return version;
     }
 
     public String getNameWithVersion() {
         return nameWithVersion;
     }
-
-    private static boolean isVersionNotURLorPath(String dependencyWithVersion) {
-        // TODO: https://docs.npmjs.com/cli/v7/configuring-npm/package-json#dependencies
-
-        return true;
-    }
-
 
 }

@@ -1,11 +1,11 @@
 package burp;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class ExecutorServiceManager {
     private static ExecutorServiceManager executorServiceManager = null;
-    private final ExecutorService executorService = Executors.newFixedThreadPool(5);
+    private final ThreadPoolExecutor executorService = (ThreadPoolExecutor) Executors.newFixedThreadPool(5);
 
     public static ExecutorServiceManager getInstance() {
         if (executorServiceManager == null)
@@ -16,7 +16,7 @@ public class ExecutorServiceManager {
     private ExecutorServiceManager() {
     }
 
-    public ExecutorService getExecutorService() {
+    public ThreadPoolExecutor getExecutorService() {
         return executorService;
     }
 

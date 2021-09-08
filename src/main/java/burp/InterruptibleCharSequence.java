@@ -1,3 +1,5 @@
+package burp;
+
 /**
  * {@link CharSequence} that notices {@link Thread} interrupts
  *

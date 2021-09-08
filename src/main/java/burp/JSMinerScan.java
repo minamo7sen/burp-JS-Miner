@@ -8,7 +8,7 @@ import java.util.HashSet;
 import static burp.BurpExtender.mStdErr;
 
 /**
- * Manage extension scan targets which shall invoke other scans
+ * JS Miner Scans manager that invokes all the available scans (based on the passed flags)
  */
 
 public class JSMinerScan {
@@ -47,6 +47,8 @@ public class JSMinerScan {
 
     // All scans should be invoked from here
     private void invokeScans() {
+        long currentTimestamp = Instant.now().toEpochMilli();
+
         // Fetch the target's HTTP requests / responses from site map
         IHttpRequestResponse[] siteMapReqResArray = callbacks.getSiteMap(
                 Utilities.getURL(getTargetURL())
@@ -54,23 +56,22 @@ public class JSMinerScan {
 
         if (isSourceMapScan()) {
             HashSet<URL> sourceMapURLs = guessSourceMapFiles(siteMapReqResArray);
-            invokeJavaScriptSourceMapper(sourceMapURLs);
+            invokeJavaScriptSourceMapper(sourceMapURLs, currentTimestamp);
         }
 
         if (isFindInterestingStuffScan()) {
-            BurpExtender.getExecutorServiceManager().getExecutorService().submit(new InterestingStuffFinder(siteMapReqResArray));
+            BurpExtender.getExecutorServiceManager().getExecutorService().submit(new InterestingStuffFinder(siteMapReqResArray, currentTimestamp));
         }
     }
 
     // Function to handle Source Mapper scan
-    private void invokeJavaScriptSourceMapper(HashSet<URL> sourceMapURLs) {
-        long currentTimestamp = Instant.now().toEpochMilli();
+    private void invokeJavaScriptSourceMapper(HashSet<URL> sourceMapURLs, long timeStamp) {
         // Crawl URLs & construct sources from .map files
         if (sourceMapURLs.size() > 1) {
             // Try to Fetch Map Files
             for (URL url : sourceMapURLs) {
                 BurpExtender.getExecutorServiceManager().getExecutorService().submit(
-                        new JSMapFileFetcher(url, currentTimestamp)
+                        new JSMapFileFetcher(url, timeStamp)
                 );
             }
         }
