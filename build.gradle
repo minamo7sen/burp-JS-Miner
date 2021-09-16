@@ -1,6 +1,5 @@
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 
 repositories {
@@ -13,4 +12,9 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0-rc1'
 }
 
-defaultTasks 'shadowJar'
+task fatJar(type: Jar) {
+    baseName = project.name + '-all'
+    from { configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+    duplicatesStrategy = 'include'
+}
