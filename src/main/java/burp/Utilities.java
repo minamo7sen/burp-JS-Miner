@@ -1,6 +1,8 @@
 package burp;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -47,10 +49,39 @@ public final class Utilities {
         // Get root Domain (e.g.: example.com instead of sub.example.com)
         Pattern rootDomainRegex = Pattern.compile("[a-z0-9]+.[a-z0-9]+$", Pattern.CASE_INSENSITIVE);
         Matcher matcherRootDomain = rootDomainRegex.matcher(requestDomain);
-            if (matcherRootDomain.find() && BurpExtender.isLoaded()) {
-                return matcherRootDomain.group();
+        if (matcherRootDomain.find() && BurpExtender.isLoaded()) {
+            return matcherRootDomain.group();
+        }
+        return null;
+    }
+
+    /**
+     * Get domain from "Referer" header to search the caller domain instead of a cdn for example
+     */
+    public static String getDomainFromReferer(IHttpRequestResponse baseRequestResponse) {
+        List<String> requestHeadersList = helpers.analyzeRequest(baseRequestResponse).getHeaders();
+        String domain;
+        for (String header : requestHeadersList) {
+            if (header.startsWith("Referer:")) {
+                domain = header.replaceAll("^Referer: ", "");
+                try {
+                    URI domainURI = new URI(domain);
+                    return getRootDomain(domainURI.getHost());
+                } catch (URISyntaxException e) {
+                    mStdErr.println("[-] URI syntax error.");
+                }
             }
-            return null;
+        }
+        return null;
+    }
+
+    /**
+     * Make sure the found subdomain does not match (www.'request domain') or request domain or root domain
+     */
+    public static boolean isMatchedDomainValid(String matchedDomain, String rootDomain, String requestDomain) {
+        return !matchedDomain.equals("www." + requestDomain)
+                && !matchedDomain.equals(requestDomain)
+                && !matchedDomain.equals("www." + rootDomain);
     }
 
     // Source: https://rosettacode.org/wiki/Entropy#Java
@@ -224,7 +255,7 @@ public final class Utilities {
 
     /**
      * A dirty method to timeout Regexes that takes so long
-     *
+     * <p>
      * Due to the fact we are using big complex Regexes,
      * sometimes with big files, this can take a long time.
      * This method mitigates this problem by killing the thread before it "kills" your CPU =)

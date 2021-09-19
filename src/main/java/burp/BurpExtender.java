@@ -16,7 +16,7 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, IExtens
     static PrintWriter mStdOut;
     static PrintWriter mStdErr;
     public static final String EXTENSION_NAME = "JS Miner";
-    private static final String EXTENSION_VERSION = "1.1";
+    private static final String EXTENSION_VERSION = "1.11";
 
     // Exposing callbacks for use in other classes
     public static IBurpExtenderCallbacks getCallbacks() {

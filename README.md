@@ -52,6 +52,15 @@ I'm open for ideas/suggestions to help improve or optimize this tool.
 ### Contributors; thanks to
 - [Stan K (@zuh4n)](https://twitter.com/zuh4n): For suggesting the dependency confusion feature, besides helping with testing and improving the functionality. 
 
+### Build from source
+```
+git clone https://github.com/minamo7sen/burp-JS-Miner.git
+cd burp-JS-Miner
+gradle fatJar
+```
+Then, the jar file can be found at `build/libs/burp-JS-Miner-all.jar`.
+
+
 ## Disclaimer
 It is the user's responsibility to obey all applicable local, state and federal laws. The author assumes no liability and is not responsible for any misuse or damage caused by this tool.
 

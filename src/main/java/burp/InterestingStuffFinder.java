@@ -175,8 +175,16 @@ public class InterestingStuffFinder implements Runnable {
      * Scan function 2 - Get all subdomains
      */
     private void findSubDomains(IHttpRequestResponse baseRequestResponse, String responseBodyString) throws InterruptedException {
+        String domainFromReferer = Utilities.getDomainFromReferer(baseRequestResponse);
         String requestDomain = helpers.analyzeRequest(baseRequestResponse).getUrl().getHost();
-        String rootDomain = Utilities.getRootDomain(requestDomain);
+        String rootDomain;
+        // Try to get caller domain from Referer header (to avoid matching cdn subdomains, ..etc.)
+        if (domainFromReferer != null) {
+            rootDomain = domainFromReferer;
+        } else {
+            // If the above failed, then use the domain from the HTTP request
+            rootDomain = Utilities.getRootDomain(requestDomain);
+        }
 
         Runnable runnable = () -> {
             if (rootDomain != null) {
@@ -185,7 +193,7 @@ public class InterestingStuffFinder implements Runnable {
                 Matcher matcherSubDomains = subDomainsRegex.matcher(new InterruptibleCharSequence(responseBodyString));
                 while (matcherSubDomains.find() && BurpExtender.isLoaded()) {
                     if (
-                            isMatchedDomainValid(matcherSubDomains.group(), rootDomain, requestDomain)
+                            Utilities.isMatchedDomainValid(matcherSubDomains.group(), rootDomain, requestDomain)
                     ) {
                         // Get markers of found subdomains
                         List<int[]> subDomainsMatches = Utilities.getMatches(baseRequestResponse.getResponse(), matcherSubDomains.group().getBytes());
@@ -205,14 +213,6 @@ public class InterestingStuffFinder implements Runnable {
         Utilities.regexRunnerWithTimeOut(runnable);
     }
 
-    /**
-     * Make sure the found subdomain does not match (www.'request domain') or request domain or root domain
-     */
-    private static boolean isMatchedDomainValid(String matchedDomain, String rootDomain, String requestDomain) {
-        return !matchedDomain.equals("www." + requestDomain)
-                && !matchedDomain.equals(requestDomain)
-                && !matchedDomain.equals("www." + rootDomain);
-    }
 
     /**
      * Scan function 3 - Get Cloud URLs
