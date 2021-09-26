@@ -6,6 +6,9 @@ import java.time.Instant;
 import java.util.HashSet;
 
 import static burp.BurpExtender.mStdErr;
+import static burp.Constants.*;
+import static burp.Utilities.getURLPrefix;
+import static burp.Utilities.logScanInfo;
 
 /**
  * JS Miner Scans manager that invokes all the available scans (based on the passed flags)
@@ -20,6 +23,7 @@ public class JSMinerScan {
     final IHttpRequestResponse baseHTTPReqRes;
     final boolean sourceMapScan;
     final boolean findInterestingStuffScan;
+    final int taskId;
 
     public URL getTargetURL() {
         return targetURL;
@@ -33,9 +37,12 @@ public class JSMinerScan {
         return findInterestingStuffScan;
     }
 
-    JSMinerScan(IHttpRequestResponse baseHTTPReqRes, boolean sourceMapScan, boolean findInterestingStuffScan) {
+    JSMinerScan(IHttpRequestResponse baseHTTPReqRes, int taskId, boolean sourceMapScan, boolean findInterestingStuffScan) {
         this.baseHTTPReqRes = baseHTTPReqRes;
         this.targetURL = helpers.analyzeRequest(this.baseHTTPReqRes).getUrl();
+
+        // Task ID
+        this.taskId = taskId;
 
         // Scan flags
         this.sourceMapScan = sourceMapScan;
@@ -56,22 +63,24 @@ public class JSMinerScan {
 
         if (isSourceMapScan()) {
             HashSet<URL> sourceMapURLs = guessSourceMapFiles(siteMapReqResArray);
-            invokeJavaScriptSourceMapper(sourceMapURLs, currentTimestamp);
+            invokeJavaScriptSourceMapper(sourceMapURLs, currentTimestamp, taskId);
         }
 
         if (isFindInterestingStuffScan()) {
-            BurpExtender.getExecutorServiceManager().getExecutorService().submit(new InterestingStuffFinder(siteMapReqResArray, currentTimestamp));
+            logScanInfo(SCAN_STATUS_ADDED, taskId, "Target host: " + helpers.analyzeRequest(baseHTTPReqRes).getUrl().getHost(),"SourceMapScan: " + isSourceMapScan() + " | findInterestingStuffScan: " + isFindInterestingStuffScan());
+            BurpExtender.getExecutorServiceManager().getExecutorService().submit(new InterestingStuffFinder(siteMapReqResArray, currentTimestamp, taskId));
         }
     }
 
     // Function to handle Source Mapper scan
-    private void invokeJavaScriptSourceMapper(HashSet<URL> sourceMapURLs, long timeStamp) {
+    private void invokeJavaScriptSourceMapper(HashSet<URL> sourceMapURLs, long timeStamp, int taskId) {
         // Crawl URLs & construct sources from .map files
         if (sourceMapURLs.size() > 1) {
             // Try to Fetch Map Files
             for (URL url : sourceMapURLs) {
+                logScanInfo(SCAN_STATUS_ADDED, taskId, SCANNER_NAME_SOURCE_MAPPER, getURLPrefix(url));
                 BurpExtender.getExecutorServiceManager().getExecutorService().submit(
-                        new JSMapFileFetcher(url, timeStamp)
+                        new JSMapFileFetcher(url, timeStamp, taskId)
                 );
             }
         }

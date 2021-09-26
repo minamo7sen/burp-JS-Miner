@@ -16,7 +16,8 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, IExtens
     static PrintWriter mStdOut;
     static PrintWriter mStdErr;
     public static final String EXTENSION_NAME = "JS Miner";
-    private static final String EXTENSION_VERSION = "1.11";
+    private static final String EXTENSION_VERSION = "1.12";
+    private static int taskCount = 0; // counter for invoked tasks through the menu items context (Not for Burp's passive scan)
 
     // Exposing callbacks for use in other classes
     public static IBurpExtenderCallbacks getCallbacks() {
@@ -134,7 +135,8 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, IExtens
             // If host is in the list, add to our unique targets & scan it
             if (!uniqueTargets.contains(host)) {
                 uniqueTargets.add(host);
-                new JSMinerScan(httpReqRes, sourceMapScan, findInterestingStuffScan);
+                taskCount++;
+                new JSMinerScan(httpReqRes, taskCount, sourceMapScan, findInterestingStuffScan);
             }
         }
 
@@ -143,7 +145,8 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, IExtens
 
     @Override
     public List<IScanIssue> doPassiveScan(IHttpRequestResponse baseRequestResponse) {
-        new Thread(() -> new JSMinerScan(baseRequestResponse, false, true)).start();
+        // taskId: -1 -> no logging for passive scans
+        new Thread(() -> new JSMinerScan(baseRequestResponse, -1, false, true)).start();
         return null;
     }
 

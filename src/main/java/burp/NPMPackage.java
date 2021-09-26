@@ -1,8 +1,9 @@
 package burp;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import static burp.InterestingStuffFinder.REGEX_QUOTES;
+import static burp.Constants.REGEX_QUOTES;
 
 /**
  * NPM package to hold dependency name and version.
@@ -13,6 +14,7 @@ public class NPMPackage {
     private String name;
     private String version;
     private String nameWithVersion;
+    private boolean disclosedNameOnly;
 
     private static final Pattern DEPENDENCY_AND_VERSION_REGEX = Pattern.compile(REGEX_QUOTES + "(.*)" + REGEX_QUOTES +
             ":" +
@@ -31,8 +33,19 @@ public class NPMPackage {
         }
     }
 
+    // Construct an NPMPackage when an internal package name was disclosed (without the version number).
+    NPMPackage(String dependencyName, boolean disclosedNameOnly) {
+        this.name = dependencyName;
+        this.disclosedNameOnly = disclosedNameOnly;
+    }
+
     // Basic validation for npm package name
     public boolean isNameValid() {
+
+        if (name == null) {
+            return false;
+        }
+
         if (
                 name.startsWith(".")  // // npm package name should not start with a period
                         || name.startsWith("_")  // // npm package name should not start with an underscore
@@ -59,6 +72,16 @@ public class NPMPackage {
      * Reference https://docs.npmjs.com/cli/v7/configuring-npm/package-json#dependencies
      */
     public boolean isVersionValidNPM() {
+
+        // if version was not disclosed (only name as in e.g.: /node_modules/<pkg>), return true because further checks are not required.
+        if (disclosedNameOnly) {
+            return true;
+        }
+
+        if (version == null) {
+            return false;
+        }
+
         return !version.contains("@")
                 && !version.contains("/")
                 && !version.contains("git")
@@ -77,7 +100,29 @@ public class NPMPackage {
     }
 
     public String getNameWithVersion() {
-        return nameWithVersion;
+        if (disclosedNameOnly) {
+            return "/node_modules/" + name;
+        } else {
+            return nameWithVersion;
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NPMPackage that = (NPMPackage) o;
+        return name.equals(that.name) && Objects.equals(version, that.version);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, version);
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 
 }

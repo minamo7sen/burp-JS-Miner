@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static burp.BurpExtender.*;
+import static burp.Constants.*;
 
 public final class Utilities {
     private static final Pattern FILE_NAME_REGEX = Pattern.compile("(.*)\\.(.*)");
@@ -23,6 +24,36 @@ public final class Utilities {
 
     private static final IBurpExtenderCallbacks callbacks = BurpExtender.getCallbacks();
     private static final IExtensionHelpers helpers = BurpExtender.getHelpers();
+
+    // template issue for interesting stuff
+    public static void sendNewIssue(
+            IHttpRequestResponse baseRequestResponse,
+            String issueName,
+            String description,
+            String issueHighlight,
+            List<int[]> responseMarkers,
+            String severity,
+            String confidence
+    ) {
+        IScanIssue newCustomIssue = new CustomScanIssue(
+                baseRequestResponse.getHttpService(),
+                helpers.analyzeRequest(baseRequestResponse).getUrl(),
+                new IHttpRequestResponse[]{callbacks.applyMarkers(baseRequestResponse, null, responseMarkers)},
+                issueName,
+                SCAN_ISSUE_HEADER +
+                        description +
+                        HTML_LIST_OPEN +
+                        HTML_LIST_BULLET_OPEN + issueHighlight + HTML_LIST_BULLET_CLOSED +
+                        HTML_LIST_CLOSED +
+                        "The identified matches should be highlighted in the HTTP response.<br><br>" +
+                        "<br>",
+                null,
+                severity,
+                confidence);
+
+        Utilities.reportIssueIfNotDuplicate(newCustomIssue, baseRequestResponse);
+
+    }
 
     public static void reportIssueIfNotDuplicate(IScanIssue iScanIssue, IHttpRequestResponse baseRequestResponse) {
         synchronized (Utilities.class) {
@@ -43,6 +74,12 @@ public final class Utilities {
             }
         }
         return true;
+    }
+
+    public static void logScanInfo(String status, int taskId, String scannerName, String url) {
+        if (taskId != -1) {
+            mStdOut.printf(LOG_FORMAT, "[" + status + "]", LOG_TASK_ID_PREFIX + taskId, scannerName, url);
+        }
     }
 
     public static String getRootDomain(String requestDomain) {
@@ -219,6 +256,21 @@ public final class Utilities {
 
     // get URL Prefix without query strings (to use with "getScanIssues")
     public static String getURLPrefix(URL url) {
+        if (url.getDefaultPort() == url.getPort()) {
+            return url.getProtocol() + "://" +
+                    url.getHost() +
+                    url.getPath();
+        } else {
+            return url.getProtocol() + "://" +
+                    url.getHost() +
+                    ":" +
+                    url.getPort() +
+                    url.getPath();
+        }
+    }
+
+    public static String getURLPrefix(IHttpRequestResponse httpRequestResponse) {
+        URL url = helpers.analyzeRequest(httpRequestResponse).getUrl();
         if (url.getDefaultPort() == url.getPort()) {
             return url.getProtocol() + "://" +
                     url.getHost() +
