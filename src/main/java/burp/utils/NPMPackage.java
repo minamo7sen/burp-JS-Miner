@@ -1,9 +1,9 @@
-package burp;
+package burp.utils;
 
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import static burp.Constants.REGEX_QUOTES;
+import static burp.utils.Constants.REGEX_QUOTES;
 
 /**
  * NPM package to hold dependency name and version.
@@ -22,7 +22,7 @@ public class NPMPackage {
 
     private static final String[] blacklistDepName = {"node_modules", "favicon.ico"};
 
-    NPMPackage(String dependencyWithNameAndVersion) {
+    public NPMPackage(String dependencyWithNameAndVersion) {
         final Matcher nameAndVersionMatcher = DEPENDENCY_AND_VERSION_REGEX.matcher(dependencyWithNameAndVersion);
 
         if (nameAndVersionMatcher.find()
@@ -34,7 +34,7 @@ public class NPMPackage {
     }
 
     // Construct an NPMPackage when an internal package name was disclosed (without the version number).
-    NPMPackage(String dependencyName, boolean disclosedNameOnly) {
+    public NPMPackage(String dependencyName, boolean disclosedNameOnly) {
         this.name = dependencyName;
         this.disclosedNameOnly = disclosedNameOnly;
     }

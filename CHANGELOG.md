@@ -1,6 +1,24 @@
 # Burp JS-Miner Changelog
 Notable changes in JS-Miner releases. Other code improvements that usually happen with every release are not mentioned.
 
+## [1.13] - 2021-10-xx
+- Code Re-Structure
+- Similar issues affecting the same URL are now combined into one issue.
+  - For example, instead of getting like 100 dependencies (in the same URL), you only get one Burp issue for all of them (with highlights).
+  - Same idea for secrets and other scanners.
+- New context menu items for all scan types.
+- New context menu items for extensions configuration.
+  - Enable/disable verbose tasks logging.
+  - Enable/disable Burp's passive scanning.
+- Tasks management
+  - Better visibility over scanning tasks (New context menu item to see tasks summary and uncompleted tasks).
+  - Duplicate unwanted scans are now skipped (if 3 factors are matched: Request URL, HTTP Response body hash and scan type).
+- Small improvement to the "Secrets" scanner to eliminate some false positives. (Planning to improve it further in the future)
+- New scan features: Static Files Dumper
+  - It dumps static files from a website to the local disk (namely: JS, JSON, CSS and MAP files).
+  - The purpose is to provide an easy way to check those static files locally (using other custom tools or to search for specific patterns based on your target).
+
+
 ## [1.12] - 2021-09-26
 - Added logging to the extension console.
   - Only enabled for invoked tasks through the context menu items. (Not enabled for Burp's passive scan)

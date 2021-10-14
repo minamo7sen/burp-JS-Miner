@@ -1,4 +1,4 @@
-package burp;
+package burp.config;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
