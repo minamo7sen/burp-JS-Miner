@@ -20,6 +20,7 @@ This tool tries to help with this "initial" phase, which should be followed by m
 - Tries to construct source code from JavaScript Source Map Files (if found).
   - Actively tries to guess the common location of the ".map" files;
   - It can also (passively) parse inline base64 JS map files.
+- Includes a one-click option to dump static files from a website (or more).  
 
 ## How to use this tool
 **In a nutshell:** Download the pre-built "jar" file from "Releases" then load it normally to your Burp Suite. Passive scans are invoked automatically, while active scans require manual invocation ( by right-clicking your targets) from the site map or other Burp windows.
@@ -50,7 +51,7 @@ As I'm using Burp Suite almost every day, my goal was to have a burp extension t
 I'm open for ideas/suggestions to help improve or optimize this tool.
 
 ### Contributors; thanks to
-- [Stan K (@zuh4n)](https://twitter.com/zuh4n): For suggesting the dependency confusion feature, besides helping with testing and improving the functionality. 
+-  [Stanislav Kravchenko](https://linkedin.com/in/staskravchenko/): For suggesting the dependency confusion feature, besides helping with testing and improving the functionality. 
 
 ### Build from source
 ```

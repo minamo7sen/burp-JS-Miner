@@ -1,4 +1,6 @@
-package burp;
+package burp.utils;
+
+import burp.BurpExtender;
 
 import java.util.regex.Pattern;
 
@@ -6,26 +8,17 @@ public class Constants {
 
     private Constants() {}
 
+    public static final String SETTING_VERBOSE_LOGGING = "verboseLoggingFlag";
+    public static final String SETTING_BURP_PASSIVE = "burpPassiveFlag";
+
     // Logging constants
     public static final String LOG_FORMAT = "%-15s%-15s%-40s%-40s%n";
-    public static final String LOG_TIME_STAMP_STRING = "Task timestamp: ";
     public static final String LOG_TASK_ID_PREFIX = " Task ID: ";
-    public static final String SCANNER_NAME_SOURCE_MAPPER = "Source Mapper Active Scan";
-    public static final String SCANNER_NAME_INTERESTING_STUFF = "Find Interesting Stuff Scan";
-    public static final String SCANNER_NAME_CLOUD_URLS = "Cloud URLs Scanner";
-    public static final String SCANNER_NAME_DEPENDENCY_CONFUSION = "Dependency Confusion Scanner";
-    public static final String SCANNER_NAME_INLINE_SOURCE_MAPS = "Inline JS Source Maps Scanner";
-    public static final String SCANNER_NAME_SECRETS = "Secrets Scanner";
-    public static final String SCANNER_NAME_SUBDOMAINS = "Subdomains Scanner";
-    public static final String SCAN_STATUS_ADDED = "QUEUED";
-    public static final String SCAN_STATUS_RUNNING = "STARTED";
-    public static final String SCAN_STATUS_COMPLETED = "COMPLETED";
-    public static final String SCAN_STATUS_FAILED = "FAILED";
 
     // Regexes
     public static final String WHITE_SPACES = "(\\s*)";
     public static final String REGEX_QUOTES = "['\"`]";
-    
+
     public static final Pattern CLOUD_URLS_REGEX = Pattern.compile("([\\w]+[.]){1,10}" + // get up to 10 subdomain levels
                     "(s3.amazonaws.com|rds.amazonaws.com|cache.amazonaws.com|" + // AWS
                     "blob.core.windows.net|onedrive.live.com|1drv.com|" + // Azure
@@ -98,6 +91,5 @@ public class Constants {
     public static final String HTML_LIST_BULLET_OPEN = "<li> ";
     public static final String HTML_LIST_BULLET_CLOSED = "</li>";
     public static final String HTML_LIST_CLOSED = "</ul>";
-
 
 }

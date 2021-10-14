@@ -1,12 +1,12 @@
-package burp;
+package burp.utils;
 
 /**
  * {@link CharSequence} that notices {@link Thread} interrupts
  *
  * @author gojomo - http://stackoverflow.com/questions/910740/cancelling-a-long-running-regex-match
  */
-class InterruptibleCharSequence implements CharSequence {
-    CharSequence inner;
+public class InterruptibleCharSequence implements CharSequence {
+    final CharSequence inner;
 
     public InterruptibleCharSequence(CharSequence inner) {
         super();

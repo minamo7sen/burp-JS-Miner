@@ -1,4 +1,8 @@
-package burp;
+package burp.utils;
+
+import burp.IHttpRequestResponse;
+import burp.IHttpService;
+import burp.IScanIssue;
 
 import java.net.URL;
 
@@ -6,7 +10,7 @@ import java.net.URL;
 // class implementing IScanIssue to hold our custom scan issue details
 //
 
-class CustomScanIssue implements IScanIssue {
+public class CustomScanIssue implements IScanIssue {
     private final IHttpService httpService;
     private final URL url;
     private final IHttpRequestResponse[] httpMessages;
