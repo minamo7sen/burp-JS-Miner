@@ -1,7 +1,7 @@
 # Burp JS-Miner Changelog
 Notable changes in JS-Miner releases. Other code improvements that usually happen with every release are not mentioned.
 
-## [1.13] - 2021-10-14
+## [1.13] - 2021-10-xx
 - Code Re-Structure
 - Similar issues affecting the same URL are now combined into one issue.
   - For example, instead of getting like 100 dependencies (in the same URL), you only get one Burp issue for all of them (with highlights).
