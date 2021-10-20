@@ -78,14 +78,19 @@ public final class Utilities {
         List<int[]> matches = new ArrayList<>();
 
         for (byte[] match: uniqueMatches) {
-            int start = 0;
-            while (start < response.length)
-            {
-                start = helpers.indexOf(response, match, false, start, response.length);
-                if (start == -1)
-                    break;
-                matches.add(new int[] { start, start + match.length });
-                start += match.length;
+            // Limit Response highlighters (matches) only to 500 then break (to maintain performance)
+            if (matches.size() < 500) {
+                int start = 0;
+                while (start < response.length)
+                {
+                    start = helpers.indexOf(response, match, false, start, response.length);
+                    if (start == -1)
+                        break;
+                    matches.add(new int[] { start, start + match.length });
+                    start += match.length;
+                }
+            } else {
+                break;
             }
         }
         // Sort found matches or otherwise Burp will complain (Source: https://stackoverflow.com/questions/19596950/sort-an-arraylist-of-integer-arrays)
