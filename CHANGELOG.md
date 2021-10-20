@@ -1,6 +1,11 @@
 # Burp JS-Miner Changelog
 Notable changes in JS-Miner releases. Other code improvements that usually happen with every release are not mentioned.
 
+## [1.14] - 2021-10-20
+- Replaced `Java Regex` with `Google/RE2J`, which is much faster, and it does not need timeout tuning. 
+- Based on that, all timeout functionalities have been removed.
+- Other improvements to make sure the extension runs faster and smoother (against huge websites) without having deadlocks.
+
 ## [1.13] - 2021-10-14
 - Code Re-Structure
 - Similar issues affecting the same URL are now combined into one issue.
