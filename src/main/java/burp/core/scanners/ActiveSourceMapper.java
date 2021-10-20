@@ -52,9 +52,9 @@ public class ActiveSourceMapper implements Runnable {
                             responseBody,
                             outputDirectory
                     );
-                    BurpExtender.getTaskRepository().completeTask(taskUUID);
                 }
             }
+            BurpExtender.getTaskRepository().completeTask(taskUUID);
         } catch (Exception e) {
             BurpExtender.getTaskRepository().failTask(taskUUID);
             StackTraceElement[] traces = e.getStackTrace();
