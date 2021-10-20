@@ -107,7 +107,7 @@ public class TaskRepository {
         for (Task task : tasks) {
             if (task.getStatus().equals(TaskStatus.TIMEOUT)) {
                 tasksSB.append(System.getProperty(LINE_SEPARATOR_PROPERTY));
-                tasksSB.append(task.getUrl());
+                tasksSB.append(task);
             }
         }
         return tasksSB;
@@ -129,7 +129,7 @@ public class TaskRepository {
         for (Task task : tasks) {
             if (task.getStatus().equals(TaskStatus.FAILED)) {
                 tasksSB.append(System.getProperty(LINE_SEPARATOR_PROPERTY));
-                tasksSB.append(task.getUrl());
+                tasksSB.append(task);
             }
         }
         return tasksSB;
