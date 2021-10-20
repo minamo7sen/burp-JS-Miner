@@ -1,14 +1,13 @@
 package burp.core.scanners;
 
 import burp.*;
-import burp.utils.InterruptibleCharSequence;
 import burp.utils.Utilities;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.regex.Matcher;
+import com.google.re2j.Matcher;
 
 import static burp.utils.Constants.*;
 import static burp.utils.Utilities.*;
@@ -30,39 +29,31 @@ public class Secrets implements Runnable {
         String responseString = new String(baseRequestResponse.getResponse());
         String responseBodyString = responseString.substring(helpers.analyzeResponse(baseRequestResponse.getResponse()).getBodyOffset());
 
-        Matcher matcherSecrets = SECRETS_REGEX.matcher(new InterruptibleCharSequence(responseBodyString));
-        Runnable runnable = () -> {
-            // For reporting unique matches with markers
-            List<byte[]> uniqueMatchesLow = new ArrayList<>();
-            StringBuilder uniqueMatchesSBLow = new StringBuilder();
+        Matcher matcherSecrets = SECRETS_REGEX.matcher(responseBodyString);
+        // For reporting unique matches with markers
+        List<byte[]> uniqueMatchesLow = new ArrayList<>();
+        StringBuilder uniqueMatchesSBLow = new StringBuilder();
 
-            List<byte[]> uniqueMatchesHigh = new ArrayList<>();
-            StringBuilder uniqueMatchesSBHigh = new StringBuilder();
-            while (matcherSecrets.find() && BurpExtender.isLoaded()) {
-                double entropy = Utilities.getShannonEntropy(matcherSecrets.group(20)); // group(2) matches our secret
-                if (entropy >= 3.5) {
-                    // if high entropy, confidence is "Firm"
-                    uniqueMatchesHigh.add(matcherSecrets.group().getBytes(StandardCharsets.UTF_8));
-                    appendFoundMatches(matcherSecrets.group(), uniqueMatchesSBHigh);
-                } else {
-                    // if low entropy, confidence is "Tentative"
-                    if (isNotFalsePositive(matcherSecrets.group(20))) {
-                        uniqueMatchesLow.add(matcherSecrets.group().getBytes(StandardCharsets.UTF_8));
-                        appendFoundMatches(matcherSecrets.group(), uniqueMatchesSBLow);
-                    }
+        List<byte[]> uniqueMatchesHigh = new ArrayList<>();
+        StringBuilder uniqueMatchesSBHigh = new StringBuilder();
+        while (matcherSecrets.find() && BurpExtender.isLoaded()) {
+            double entropy = Utilities.getShannonEntropy(matcherSecrets.group(20)); // group(2) matches our secret
+            if (entropy >= 3.5) {
+                // if high entropy, confidence is "Firm"
+                uniqueMatchesHigh.add(matcherSecrets.group().getBytes(StandardCharsets.UTF_8));
+                appendFoundMatches(matcherSecrets.group(), uniqueMatchesSBHigh);
+            } else {
+                // if low entropy, confidence is "Tentative"
+                if (isNotFalsePositive(matcherSecrets.group(20))) {
+                    uniqueMatchesLow.add(matcherSecrets.group().getBytes(StandardCharsets.UTF_8));
+                    appendFoundMatches(matcherSecrets.group(), uniqueMatchesSBLow);
                 }
             }
-
-            reportFinding(baseRequestResponse, uniqueMatchesSBLow, uniqueMatchesLow, uniqueMatchesSBHigh, uniqueMatchesHigh);
-
-            BurpExtender.getTaskRepository().completeTask(taskUUID);
-        };
-        try {
-            Utilities.regexRunnerWithTimeOut(runnable);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            BurpExtender.getTaskRepository().timeoutTask(taskUUID);
         }
+
+        reportFinding(baseRequestResponse, uniqueMatchesSBLow, uniqueMatchesLow, uniqueMatchesSBHigh, uniqueMatchesHigh);
+
+        BurpExtender.getTaskRepository().completeTask(taskUUID);
     }
 
     private static void reportFinding(IHttpRequestResponse baseRequestResponse, StringBuilder uniqueMatchesSBLow, List<byte[]> uniqueMatchesLow,

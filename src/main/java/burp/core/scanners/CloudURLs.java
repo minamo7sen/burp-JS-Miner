@@ -1,14 +1,13 @@
 package burp.core.scanners;
 
 import burp.*;
-import burp.utils.InterruptibleCharSequence;
 import burp.utils.Utilities;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.regex.Matcher;
+import com.google.re2j.Matcher;
 
 import static burp.utils.Constants.*;
 import static burp.utils.Utilities.appendFoundMatches;
@@ -36,25 +35,17 @@ public class CloudURLs implements Runnable {
         String responseString = new String(baseRequestResponse.getResponse());
         String responseBodyString = responseString.substring(helpers.analyzeResponse(baseRequestResponse.getResponse()).getBodyOffset());
 
-        Matcher cloudURLsMatcher = CLOUD_URLS_REGEX.matcher(new InterruptibleCharSequence(responseBodyString));
+        Matcher cloudURLsMatcher = CLOUD_URLS_REGEX.matcher(responseBodyString);
 
-        Runnable runnable = () -> {
-            while (cloudURLsMatcher.find() && BurpExtender.isLoaded()) {
-                uniqueMatches.add(cloudURLsMatcher.group().getBytes(StandardCharsets.UTF_8));
-                appendFoundMatches(cloudURLsMatcher.group(), uniqueMatchesSB);
-            }
-
-            reportFinding(baseRequestResponse, uniqueMatchesSB, uniqueMatches);
-
-            BurpExtender.getTaskRepository().completeTask(taskUUID);
-
-        };
-        try {
-            Utilities.regexRunnerWithTimeOut(runnable);
-        } catch (InterruptedException e) {
-            BurpExtender.getTaskRepository().timeoutTask(taskUUID);
-            Thread.currentThread().interrupt();
+        while (cloudURLsMatcher.find() && BurpExtender.isLoaded()) {
+            uniqueMatches.add(cloudURLsMatcher.group().getBytes(StandardCharsets.UTF_8));
+            appendFoundMatches(cloudURLsMatcher.group(), uniqueMatchesSB);
         }
+
+        reportFinding(baseRequestResponse, uniqueMatchesSB, uniqueMatches);
+
+        BurpExtender.getTaskRepository().completeTask(taskUUID);
+
     }
 
     private static void reportFinding(IHttpRequestResponse baseRequestResponse, StringBuilder allMatchesSB, List<byte[]> uniqueMatches) {

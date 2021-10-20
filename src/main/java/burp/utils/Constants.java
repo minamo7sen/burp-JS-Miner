@@ -2,7 +2,7 @@ package burp.utils;
 
 import burp.BurpExtender;
 
-import java.util.regex.Pattern;
+import com.google.re2j.Pattern;
 
 public class Constants {
 

@@ -85,8 +85,7 @@ enum TaskStatus {
     RUNNING,
     COMPLETED,
     FAILED,
-    SKIPPED,
-    TIMEOUT
+    SKIPPED
 }
 
 enum TaskName {

@@ -1,15 +1,14 @@
 package burp.core.scanners;
 
 import burp.*;
-import burp.utils.InterruptibleCharSequence;
 import burp.utils.Utilities;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 
 import static burp.utils.Constants.*;
 import static burp.utils.Utilities.appendFoundMatches;
@@ -43,33 +42,25 @@ public class SubDomains implements Runnable {
             rootDomain = Utilities.getRootDomain(requestDomain);
         }
 
-        Runnable runnable = () -> {
-            if (rootDomain != null) {
-                // For reporting unique matches with markers
-                List<byte[]> uniqueMatches = new ArrayList<>();
-                StringBuilder uniqueMatchesSB = new StringBuilder();
+        if (rootDomain != null) {
+            // For reporting unique matches with markers
+            List<byte[]> uniqueMatches = new ArrayList<>();
+            StringBuilder uniqueMatchesSB = new StringBuilder();
 
-                // Simple SubDomains Regex
-                Pattern subDomainsRegex = Pattern.compile("([a-z-0-9]+[.])+" + rootDomain, Pattern.CASE_INSENSITIVE);
-                Matcher matcherSubDomains = subDomainsRegex.matcher(new InterruptibleCharSequence(responseBodyString));
-                while (matcherSubDomains.find() && BurpExtender.isLoaded()) {
-                    if (
-                            Utilities.isMatchedDomainValid(matcherSubDomains.group(), rootDomain, requestDomain)
-                    ) {
-                        uniqueMatches.add(helpers.urlDecode(matcherSubDomains.group()).getBytes(StandardCharsets.UTF_8));
-                        appendFoundMatches(helpers.urlDecode(matcherSubDomains.group()), uniqueMatchesSB);
-                    }
+            // Simple SubDomains Regex
+            Pattern subDomainsRegex = Pattern.compile("([a-z-0-9]+[.])+" + rootDomain, Pattern.CASE_INSENSITIVE);
+            Matcher matcherSubDomains = subDomainsRegex.matcher(responseBodyString);
+            while (matcherSubDomains.find() && BurpExtender.isLoaded()) {
+                if (
+                        Utilities.isMatchedDomainValid(matcherSubDomains.group(), rootDomain, requestDomain)
+                ) {
+                    uniqueMatches.add(helpers.urlDecode(matcherSubDomains.group()).getBytes(StandardCharsets.UTF_8));
+                    appendFoundMatches(helpers.urlDecode(matcherSubDomains.group()), uniqueMatchesSB);
                 }
-                reportFinding(baseRequestResponse, uniqueMatchesSB, uniqueMatches);
             }
-            BurpExtender.getTaskRepository().completeTask(taskUUID);
-        };
-        try {
-            Utilities.regexRunnerWithTimeOut(runnable);
-        } catch (InterruptedException e) {
-            BurpExtender.getTaskRepository().timeoutTask(taskUUID);
-            Thread.currentThread().interrupt();
+            reportFinding(baseRequestResponse, uniqueMatchesSB, uniqueMatches);
         }
+        BurpExtender.getTaskRepository().completeTask(taskUUID);
     }
 
     private static void reportFinding(IHttpRequestResponse baseRequestResponse, StringBuilder allMatchesSB, List<byte[]> uniqueMatches) {

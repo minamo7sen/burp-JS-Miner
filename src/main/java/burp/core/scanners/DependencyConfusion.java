@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
-import java.util.regex.Matcher;
+import com.google.re2j.Matcher;
 
 import static burp.utils.Constants.*;
 import static burp.utils.Utilities.*;

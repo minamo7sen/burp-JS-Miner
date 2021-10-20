@@ -7,7 +7,7 @@ import burp.utils.Utilities;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
-import java.util.regex.Matcher;
+import com.google.re2j.Matcher;
 
 import static burp.utils.Constants.b64SourceMapRegex;
 

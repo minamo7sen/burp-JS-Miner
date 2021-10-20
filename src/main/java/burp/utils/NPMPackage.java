@@ -1,8 +1,8 @@
 package burp.utils;
 
 import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.google.re2j.Matcher;
+import com.google.re2j.Pattern;
 import static burp.utils.Constants.REGEX_QUOTES;
 
 /**

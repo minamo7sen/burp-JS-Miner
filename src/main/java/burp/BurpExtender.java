@@ -406,7 +406,6 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, IExtens
             mStdOut.println("Queued tasks: " + taskRepository.getQueuedTasks().size());
             mStdOut.println("Completed tasks: " + taskRepository.getCompletedTasks().size());
             mStdOut.println("Running tasks: " + taskRepository.getRunningTasks().size());
-            mStdOut.println("Timed out tasks: " + taskRepository.getTimedOutTasks().size());
             mStdOut.println("Failed tasks: " + taskRepository.getFailedTasks().size());
             mStdOut.println("============================================");
         }
@@ -417,11 +416,6 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, IExtens
         @Override
         public void actionPerformed(ActionEvent e) {
             mStdOut.println("[=============== Uncompleted Tasks =============]");
-            int timedOutTasksSize = taskRepository.getTimedOutTasks().size();
-            if (timedOutTasksSize > 0) {
-                mStdOut.println("Timed out tasks:" + taskRepository.printTimedOutTasks().toString());
-                mStdOut.println("=============================================");
-            }
 
             int runningTasksSize = taskRepository.getRunningTasks().size();
             // If there was some timed out tasks, print them for troubleshooting or local checking

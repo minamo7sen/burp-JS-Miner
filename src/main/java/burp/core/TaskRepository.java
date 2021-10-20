@@ -92,27 +92,6 @@ public class TaskRepository {
         return tasksList;
     }
 
-    public List<Task> getTimedOutTasks() {
-        List<Task> tasksList = new ArrayList<>();
-        for (Task task : tasks) {
-            if (task.getStatus().equals(TaskStatus.TIMEOUT)) {
-                tasksList.add(task);
-            }
-        }
-        return tasksList;
-    }
-
-    public StringBuilder printTimedOutTasks() {
-        StringBuilder tasksSB = new StringBuilder();
-        for (Task task : tasks) {
-            if (task.getStatus().equals(TaskStatus.TIMEOUT)) {
-                tasksSB.append(System.getProperty(LINE_SEPARATOR_PROPERTY));
-                tasksSB.append(task);
-            }
-        }
-        return tasksSB;
-    }
-
     public StringBuilder printRunningTasks() {
         StringBuilder tasksSB = new StringBuilder();
         for (Task task : tasks) {
@@ -150,12 +129,6 @@ public class TaskRepository {
     public void failTask(UUID taskId) {
         Task task = findTaskByUUID(taskId);
         task.setStatus(TaskStatus.FAILED);
-        logTask(task);
-    }
-
-    public void timeoutTask(UUID taskId) {
-        Task task = findTaskByUUID(taskId);
-        task.setStatus(TaskStatus.TIMEOUT);
         logTask(task);
     }
 
