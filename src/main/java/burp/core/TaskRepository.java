@@ -26,13 +26,13 @@ public class TaskRepository {
     }
 
     public void addTask(Task task) {
-        tasks.add(task);
+        getTasks().add(task);
         logTask(task);
     }
 
     public boolean notDuplicate(TaskName taskName, String url, byte[] hash) {
         String normalizedURL = Task.normalizeURL(url);
-        for (Task task : tasks) {
+        for (Task task : getTasks()) {
             if (Arrays.equals(task.getHash(), hash)
                     && task.getUrl().equals(normalizedURL)
                     && task.getName().equals(taskName)) {
@@ -44,7 +44,7 @@ public class TaskRepository {
     }
 
     public Task findTaskByUUID(UUID taskUUID) {
-        for (Task task : tasks) {
+        for (Task task : getTasks()) {
             if (task.getUuid().equals(taskUUID)) {
                 return task;
             }
@@ -54,7 +54,7 @@ public class TaskRepository {
 
     public List<Task> getQueuedTasks() {
         List<Task> tasksList = new ArrayList<>();
-        for (Task task : tasks) {
+        for (Task task : getTasks()) {
             if (task.getStatus().equals(TaskStatus.QUEUED)) {
                 tasksList.add(task);
             }
@@ -64,7 +64,7 @@ public class TaskRepository {
 
     public List<Task> getCompletedTasks() {
         List<Task> tasksList = new ArrayList<>();
-        for (Task task : tasks) {
+        for (Task task : getTasks()) {
             if (task.getStatus().equals(TaskStatus.COMPLETED)) {
                 tasksList.add(task);
             }
@@ -74,7 +74,7 @@ public class TaskRepository {
 
     public List<Task> getRunningTasks() {
         List<Task> tasksList = new ArrayList<>();
-        for (Task task : tasks) {
+        for (Task task : getTasks()) {
             if (task.getStatus().equals(TaskStatus.RUNNING)) {
                 tasksList.add(task);
             }
@@ -84,7 +84,7 @@ public class TaskRepository {
 
     public List<Task> getFailedTasks() {
         List<Task> tasksList = new ArrayList<>();
-        for (Task task : tasks) {
+        for (Task task : getTasks()) {
             if (task.getStatus().equals(TaskStatus.FAILED)) {
                 tasksList.add(task);
             }
@@ -94,7 +94,7 @@ public class TaskRepository {
 
     public StringBuilder printRunningTasks() {
         StringBuilder tasksSB = new StringBuilder();
-        for (Task task : tasks) {
+        for (Task task : getTasks()) {
             if (task.getStatus().equals(TaskStatus.RUNNING)) {
                 tasksSB.append(System.getProperty(LINE_SEPARATOR_PROPERTY));
                 tasksSB.append(task);
@@ -105,7 +105,7 @@ public class TaskRepository {
 
     public StringBuilder printFailedTasks() {
         StringBuilder tasksSB = new StringBuilder();
-        for (Task task : tasks) {
+        for (Task task : getTasks()) {
             if (task.getStatus().equals(TaskStatus.FAILED)) {
                 tasksSB.append(System.getProperty(LINE_SEPARATOR_PROPERTY));
                 tasksSB.append(task);
@@ -137,7 +137,11 @@ public class TaskRepository {
     }
 
     public int getSize() {
-        return tasks.size();
+        return getTasks().size();
+    }
+
+    private synchronized List<Task> getTasks() {
+        return tasks;
     }
 
     private static void logTask(Task task) {
