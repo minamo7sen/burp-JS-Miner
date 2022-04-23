@@ -179,6 +179,11 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, IExtens
             dumpStaticFilesMenuItem.addActionListener(dumpStaticFilesItemAction);
             scanItems.add(dumpStaticFilesMenuItem);
 
+            JMenuItem endpointsFinderMenuItem = new JMenuItem("API Endpoints Finder");
+            EndpointsFinderItemAction endpointsFinderItemAction = new EndpointsFinderItemAction(selectedMessages);
+            endpointsFinderMenuItem.addActionListener(endpointsFinderItemAction);
+            scanItems.add(endpointsFinderMenuItem);
+
             // === Logging Menu Items ==== //
             JMenuItem checkTasksMenuItem = new JMenuItem("Tasks Summary");
             CheckTasksMenuItemActions checkTasksMenuItemActions = new CheckTasksMenuItemActions();
@@ -391,6 +396,25 @@ public class BurpExtender implements IBurpExtender, IContextMenuFactory, IExtens
                         .dumpStaticFiles()
                         .taskId(++taskCount)
                         .timeStamp(ts)
+                        .build();
+                scannerBuilder.runScans();
+            }).start();
+        }
+    }
+
+    class EndpointsFinderItemAction implements ActionListener {
+        private final IHttpRequestResponse[] httpReqResArray;
+
+        EndpointsFinderItemAction(IHttpRequestResponse[] httpReqResArr) {
+            this.httpReqResArray = httpReqResArr;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            new Thread(() -> {
+                ScannerBuilder scannerBuilder = new ScannerBuilder.Builder(httpReqResArray)
+                        .endpointsFinder()
+                        .taskId(++taskCount)
                         .build();
                 scannerBuilder.runScans();
             }).start();

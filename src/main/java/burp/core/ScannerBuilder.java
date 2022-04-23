@@ -37,6 +37,7 @@ public class ScannerBuilder {
     private final boolean scanInlineSourceMapFiles;
     private final boolean activeSourceMapperScan;
     private final boolean dumpStaticFiles;
+    private final boolean endpointsFinder;
 
 
     public static class Builder {
@@ -53,6 +54,7 @@ public class ScannerBuilder {
         private boolean scanInlineSourceMapFiles = false;
         private boolean activeSourceMapperScan = false;
         private boolean dumpStaticFiles = false;
+        private boolean endpointsFinder = false;
 
         public Builder(IHttpRequestResponse[] baseRequestResponseArray) {
             this.baseRequestResponseArray = baseRequestResponseArray;
@@ -103,12 +105,18 @@ public class ScannerBuilder {
             return this;
         }
 
+        public Builder endpointsFinder() {
+            endpointsFinder = true;
+            return this;
+        }
+
         public Builder runAllPassiveScans() {
             scanDependencyConfusion = true;
             scanSubDomains = true;
             scanSecrets = true;
             scanCloudURLs = true;
             scanInlineSourceMapFiles = true;
+            endpointsFinder = true;
             return this;
         }
 
@@ -134,6 +142,7 @@ public class ScannerBuilder {
         scanInlineSourceMapFiles = builder.scanInlineSourceMapFiles;
         activeSourceMapperScan = builder.activeSourceMapperScan;
         dumpStaticFiles = builder.dumpStaticFiles;
+        endpointsFinder = builder.endpointsFinder;
     }
 
     public void runScans() {
@@ -163,6 +172,10 @@ public class ScannerBuilder {
 
         if (dumpStaticFiles) {
             runStaticFilesDumper(baseRequestResponseArray, taskId, timeStamp);
+        }
+
+        if (endpointsFinder) {
+            runEndpointsFinder(baseRequestResponseArray, taskId, timeStamp);
         }
     }
 
@@ -208,6 +221,10 @@ public class ScannerBuilder {
                 case STATIC_FILES_DUMPER:
                     BurpExtender.getExecutorServiceManager().getExecutorService().submit(
                             new StaticFilesDumper(requestResponse, timeStamp, uuid, isLastIterator));
+                    break;
+                case ENDPOINTS_FINDER:
+                    BurpExtender.getExecutorServiceManager().getExecutorService().submit(
+                            new Endpoints(requestResponse, uuid));
                     break;
                 default:
                     break;
@@ -277,6 +294,13 @@ public class ScannerBuilder {
                 isLastIterator = true;
             }
             scanVerifierExecutor(httpRequestResponse, taskId, TaskName.STATIC_FILES_DUMPER, timeStamp, isLastIterator);
+        }
+    }
+
+    private static void runEndpointsFinder(IHttpRequestResponse[] baseRequestResponseArray, int taskId, long timeStamp) {
+        Set<IHttpRequestResponse> uniqueRequests = Utilities.querySiteMap(baseRequestResponseArray, EXTENSION_JS);
+        for (IHttpRequestResponse requestResponse : uniqueRequests) {
+            scanVerifierExecutor(requestResponse, taskId, TaskName.ENDPOINTS_FINDER, timeStamp, false);
         }
     }
 
