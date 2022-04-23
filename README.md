@@ -2,48 +2,57 @@
 This tool tries to find interesting stuff inside static files; mainly JavaScript and JSON files.
 
 ## Background
-While assessing a web application, it is expected to enumerate information residing inside static ".js" and ".json" files. 
+While assessing a web application, it is expected to enumerate information residing inside static files such as JavaScript or JSON resources. 
 
-This tool tries to help with this "initial" phase, which should be followed by manual review/analysis of the reported issues.
+This tool tries to help with this "initial" recon phase, which should be followed by manual review/analysis of the reported issues.
 
 **Note:** Like many other tools of the same nature, this tool is expected to produce false positives. Also, as it is meant to be used as a helper tool, but it does not replace manual review/analysis (nothing really can). 
 
 ## Features
-- Scans for secrets / credentials
-  - It uses Shannon entropy to improve the confidence level.
-- Scans for subdomains
-- Scans for cloud URLs
-  - Support for (AWS, Azure, Google, CloudFront, Digital Ocean, Oracle, Alibaba, Firebase, Rackspace, Dream Host)
-- Tries to identify "dependency confusion" issues.
-  - Reports a critical issue when a dependency or an organization is missing from the NPM registry.
-  - Reports informational issues for identified dependencies.
+### Secrets / credentials (passive)
+- Uses Shannon entropy to improve the confidence level.
+- A good resource to verify found API keys:
+  - https://github.com/streaak/keyhacks
+
+### Subdomains (passive)
+- Nothing special here.
+
+### Cloud URLs (passive)
+- Support for (AWS, Azure, Google, CloudFront, Digital Ocean, Oracle, Alibaba, Firebase, Rackspace, Dream Host)
+
+### Dependency Confusion (passive but connects to NPM JS registry to verify the issue)
+- Reports a critical issue when a dependency or an organization is missing from the NPM registry.
+- Reports informational issues for identified dependencies.
+
+### JS Source Mapper (active and passive)
 - Tries to construct source code from JavaScript Source Map Files (if found).
-  - Actively tries to guess the common location of the ".map" files;
-  - It can also (passively) parse inline base64 JS map files.
-- Includes a one-click option to dump static files from a website (or more).  
+- Actively tries to guess the common location of the ".map" files;
+- It can also (passively) parse inline base64 JS map files.
+
+### Static files dumper (passive but requires manual invocation)
+- A **one-click** option to dump static files from one or multiple websites.
+- Think `ctrl+A` in your Burp's `sitemap`, then dump all static files.
+- You can use this feature to run your custom tools to find specific patterns for example.
+
+### API Endpoints Finder (passive)
+- Tries to find `GET`/`POST`/`PUT`/`DELETE`/`PATCH` API endpoints.
 
 ## How to use this tool
-**In a nutshell:** Download the pre-built "jar" file from "Releases" then load it normally to your Burp Suite. Passive scans are invoked automatically, while active scans require manual invocation ( by right-clicking your targets) from the site map or other Burp windows.
+- Download from BApp Store, or download the pre-built "jar" file from "Releases" then load it normally to your Burp Suite.
+- Passive scans are invoked automatically, while active scans require manual invocation ( by right-clicking your targets) from the site map or other Burp windows.
+- No configuration needed, no extra Burp Suite tab.
+  - Just install and maybe enjoy.
 
 ### More information
 The tool contains two main scans:
 - **Passive** scans, which are enabled by default (to search for inline JS map files, secrets, subdomains and cloud URLs).
 - **Actively** try to guess JavaScript source map files. (During the process, HTTP requests will be sent)
 
-For the best results, ensure to navigate your target first in order for all the static files to be loaded then right-click on the target domain
-(example.com) from Burp Suite's site map tree, then select one of "JS Miner" scan options.
-
-Note: JS Source mapper scan is not included in Burp's "Active scan".
-
-### What are JavaScript source maps?
-**TL;DR:** If the ".map" files were found, this tool can construct the front-end source code and store it under your home directory.
-- JavaScript source map files are mainly meant for debugging purposes. To map the minified JavaScript files to the original source code. 
-- The constructed source code might include comments, configurations and other internal information.
-- While most of this data might be included in the minified JavaScript files, the original source code and its comments can be easier to review/analyze.
-- References:
-  - https://www.html5rocks.com/en/tutorials/developertools/sourcemaps/
-  - https://www.rapid7.com/de/blog/post/2017/05/24/what-are-javascript-source-maps/
-
+#### For the best results:
+- Ensure to **navigate** your target first in order for all the static files to be loaded;
+- Passive scans will trigger automatically. Ensure Burp's Sitemap is **displaying** your target's static files. 
+- Then right-click on the target domain (example.com) from Burp Suite's site map tree, then select one of "JS Miner" scan options.
+- Sometimes you may need to allow cookies to be sent by the extension. Check the wiki for how to do that.
 
 ## Motivation and contribution
 As I'm using Burp Suite almost every day, my goal was to have a burp extension that searches for information inside static files. (Many good command-line tools are out there that are doing what this extension is doing)

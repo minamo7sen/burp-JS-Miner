@@ -1,6 +1,9 @@
 # Burp JS-Miner Changelog
 Notable changes in JS-Miner releases. Other code improvements that usually happen with every release are not mentioned.
 
+## [1.15] - 2022-04-23
+- Added new passive scan "API Endpoints Finder".
+
 ## [1.14] - 2021-10-20
 - Replaced `Java Regex` with `Google/RE2J`, which is much faster, and it does not need timeout tuning. 
 - Based on that, all timeout functionalities have been removed.
