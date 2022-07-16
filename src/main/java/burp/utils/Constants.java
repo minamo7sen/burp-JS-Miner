@@ -35,7 +35,7 @@ public class Constants {
     // Inspired by: https://github.com/nsonaniya2010/SubDomainizer/blob/master/SubDomainizer.py
     public static final Pattern SECRETS_REGEX = Pattern.compile(("['\"`]?(\\w*)" + // Starts with a quote then a word / white spaces
                     WHITE_SPACES +
-                    "(secret|token|password|passwd|authorization|bearer|aws_access_key_id|aws_secret_access_key|irc_pass|SLACK_BOT_TOKEN|id_dsa" +
+                    "(secret|token|password|passwd|authorization|bearer|aws_access_key_id|aws_secret_access_key|irc_pass|SLACK_BOT_TOKEN|id_dsa|" +
                     "secret[_-]?(key|token|secret)|" +
                     "api[_-]?(key|token|secret)|" +
                     "access[_-]?(key|token|secret)|" +
@@ -57,7 +57,7 @@ public class Constants {
                     WHITE_SPACES +
                     REGEX_QUOTES + // opening quote for secret
                     WHITE_SPACES +
-                    "([\\w\\-/~!@#$%^&*+]+)" + // Assuming secrets will be alphanumeric with some special characters
+                    "([\\w\\-\\/~!@#$%^&*+]+)" + // Assuming secrets will be alphanumeric with some special characters
                     WHITE_SPACES +
                     REGEX_QUOTES // closing quote for secrets
             ),
