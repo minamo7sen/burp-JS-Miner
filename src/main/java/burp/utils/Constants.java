@@ -57,7 +57,7 @@ public class Constants {
                     WHITE_SPACES +
                     REGEX_QUOTES + // opening quote for secret
                     WHITE_SPACES +
-                    "([\\w\\-\\/~!@#$%^&*+]+)" + // Assuming secrets will be alphanumeric with some special characters
+                    "([\\w\\-/~!@#$%^&*+]+)" + // Assuming secrets will be alphanumeric with some special characters
                     WHITE_SPACES +
                     REGEX_QUOTES // closing quote for secrets
             ),
