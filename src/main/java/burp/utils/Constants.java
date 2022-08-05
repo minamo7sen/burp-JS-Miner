@@ -19,7 +19,7 @@ public class Constants {
     public static final String WHITE_SPACES = "(\\s*)";
     public static final String REGEX_QUOTES = "['\"`]";
 
-    public static final Pattern CLOUD_URLS_REGEX = Pattern.compile("([\\w]+[.]){1,10}" + // get up to 10 subdomain levels
+    public static final Pattern CLOUD_URLS_REGEX = Pattern.compile("([\\w-_]+[.]){1,10}" + // get up to 10 subdomain levels
                     "(s3.amazonaws.com|rds.amazonaws.com|cache.amazonaws.com|" + // AWS
                     "blob.core.windows.net|onedrive.live.com|1drv.com|" + // Azure
                     "storage.googleapis.com|storage.cloud.google.com|storage-download.googleapis.com|content-storage-upload.googleapis.com|content-storage-download.googleapis.com|" + // Google
