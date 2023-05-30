@@ -237,6 +237,10 @@ public final class Utilities {
                 && matchedDomain.endsWith(rootDomain);
     }
 
+    public static boolean isHighEntropy(String s) {
+        return Utilities.getShannonEntropy(s) >= 3.5;
+    }
+
     // Source: https://rosettacode.org/wiki/Entropy#Java
     @SuppressWarnings("boxing")
     public static double getShannonEntropy(String s) {
@@ -434,6 +438,16 @@ public final class Utilities {
     public static String b64Decode(String encodedString) {
         byte[] decodedBytes = Base64.getDecoder().decode(encodedString.trim());
         return new String(decodedBytes);
+    }
+
+    public static boolean isValidBase64(String base64) {
+        try {
+            // Decode string
+            Base64.getDecoder().decode(base64);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
 
 }

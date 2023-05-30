@@ -63,6 +63,9 @@ public class Constants {
             ),
             Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 
+    public static final Pattern HTTP_BASIC_AUTH_SECRETS = Pattern.compile("Authorization.{0,5}Basic(\\s*)([A-Za-z0-9+/=]+)",
+            Pattern.MULTILINE);
+
     public static final Pattern b64SourceMapRegex = Pattern.compile("sourceMappingURL=data(.*)json(.*)base64,((?:[a-z0-9+/]{4})*(?:[a-z0-9+/]{2}==|[a-z0-9+/]{3}=)?)(\\\\n)?",
             Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
 

@@ -29,6 +29,7 @@ public class Secrets implements Runnable {
         String responseString = new String(baseRequestResponse.getResponse());
         String responseBodyString = responseString.substring(helpers.analyzeResponse(baseRequestResponse.getResponse()).getBodyOffset());
 
+        // Combined secrets
         Matcher matcherSecrets = SECRETS_REGEX.matcher(responseBodyString);
         // For reporting unique matches with markers
         List<byte[]> uniqueMatchesLow = new ArrayList<>();
@@ -37,8 +38,7 @@ public class Secrets implements Runnable {
         List<byte[]> uniqueMatchesHigh = new ArrayList<>();
         StringBuilder uniqueMatchesSBHigh = new StringBuilder();
         while (matcherSecrets.find() && BurpExtender.isLoaded()) {
-            double entropy = Utilities.getShannonEntropy(matcherSecrets.group(20)); // group(2) matches our secret
-            if (entropy >= 3.5) {
+            if (Utilities.isHighEntropy(matcherSecrets.group(20))) { // group(20) matches our secret
                 // if high entropy, confidence is "Firm"
                 uniqueMatchesHigh.add(matcherSecrets.group().getBytes(StandardCharsets.UTF_8));
                 appendFoundMatches(matcherSecrets.group(), uniqueMatchesSBHigh);
@@ -48,6 +48,22 @@ public class Secrets implements Runnable {
                     uniqueMatchesLow.add(matcherSecrets.group().getBytes(StandardCharsets.UTF_8));
                     appendFoundMatches(matcherSecrets.group(), uniqueMatchesSBLow);
                 }
+            }
+        }
+
+        // http basic auth secrets
+        Matcher httpBasicAuthMatcher = HTTP_BASIC_AUTH_SECRETS.matcher(responseBodyString);
+        if (httpBasicAuthMatcher.find()) {
+            String base64String = httpBasicAuthMatcher.group(2); // basic auth secret is in group(2)
+
+            // checks if secret is a valid base64 & of high entropy
+            if (isValidBase64(base64String) && Utilities.isHighEntropy(Utilities.b64Decode(base64String))) {
+                uniqueMatchesHigh.add(httpBasicAuthMatcher.group().getBytes(StandardCharsets.UTF_8));
+                appendFoundMatches(httpBasicAuthMatcher.group(), uniqueMatchesSBHigh);
+            } else {
+                // otherwise, report it anyway (as Low)
+                uniqueMatchesLow.add(httpBasicAuthMatcher.group().getBytes(StandardCharsets.UTF_8));
+                appendFoundMatches(httpBasicAuthMatcher.group(), uniqueMatchesSBLow);
             }
         }
 
