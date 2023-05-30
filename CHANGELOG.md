@@ -1,6 +1,9 @@
 # Burp JS-Miner Changelog
 Notable changes in JS-Miner releases. Other code improvements that usually happen with every release are not mentioned.
 
+## [1.16] - 2023-05-30
+- Added http-basic auth scan to "Secrets" scanner.
+
 ## [1.15] - 2022-04-23
 - Added new passive scan "API Endpoints Finder".
 
